@@ -1,7 +1,8 @@
 import OpenAI from "openai";
-import {BASE_PROMPT, genre, pick, randInt} from "./utils.js";
+import {genre, getBasePrompt, pick, randInt} from "./utils.js";
 
 export const generate = async () => {
+    const BASE_PROMPT = getBasePrompt()
     const apiKey = process.env.OPEN_AI_API_KEY;
     const openai = new OpenAI({
         apiKey,
