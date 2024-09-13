@@ -13,6 +13,13 @@ export const genre = [
     '政治', '亲情', '剧情',
 ]
 
+export const TYPES = {
+    micro: [20, 500],
+    short: [500, 2000],
+    medium: [2000, 8000],
+    long: [8000, 20000],
+}
+
 export function getBasePrompt() {
     return `你是作家${pick(writers, 1)}`
 }
