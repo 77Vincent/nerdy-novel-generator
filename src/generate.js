@@ -1,8 +1,8 @@
 import OpenAI from "openai";
-import {genre, getBasePrompt, pick, randInt, TYPES} from "./utils.js";
+import {genres, getBasePrompt, pick, randInt, TYPES} from "./utils.js";
 
-const getSynopsis = async (base, openai) => {
-    const prompt = `${base}想一个题材为${pick(genre, randInt(1, 3)).join(",")}的故事，${randInt(10, 40)}字。`
+const getSynopsis = async (base, genre, openai) => {
+    const prompt = `${base}想一个题材为${genre.join(",")}的故事，${randInt(10, 40)}字。`
     const synopsis = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -50,6 +50,7 @@ const getContent = async (base, synopsis, len, openai) => {
 
 export const generate = async (size) => {
     const BASE_PROMPT = getBasePrompt()
+    const genre = pick(genres, randInt(1, 3))
     const apiKey = process.env.OPEN_AI_API_KEY;
     const openai = new OpenAI({
         apiKey,
@@ -64,7 +65,7 @@ export const generate = async (size) => {
     const len = randInt(min, max)
 
     try {
-        const synopsis = await getSynopsis(BASE_PROMPT, openai);
+        const synopsis = await getSynopsis(BASE_PROMPT, genre, openai);
         const title = await getTitle(BASE_PROMPT, synopsis, openai);
         const content = await getContent(BASE_PROMPT, synopsis, len, openai);
 
@@ -78,6 +79,7 @@ export const generate = async (size) => {
                 length: len,
             }],
             length: len,
+            genre,
             author_id: randInt(1, 500),
             created_at: Date.now(),
             updated_at: Date.now(),
