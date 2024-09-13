@@ -16,6 +16,22 @@ const getSynopsis = async (base, openai) => {
     return synopsis.choices[0].message.content
 }
 
+const getTitle = async (base, synopsis, openai) => {
+    const prompt = `${base}以下是故事概要：${synopsis}为它想一个原创性的名字，${randInt(2,15)}字以内，只需要名字`
+    const title = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+            {
+                role: "user",
+                content: prompt,
+            },
+        ],
+        n: 1,
+    });
+
+    return title.choices[0].message.content
+}
+
 export const generate = async (size) => {
     const BASE_PROMPT = getBasePrompt()
     const apiKey = process.env.OPEN_AI_API_KEY;
@@ -32,18 +48,7 @@ export const generate = async (size) => {
 
     try {
         const synopsis = await getSynopsis(BASE_PROMPT, openai);
-
-        const promptForTitle = `${BASE_PROMPT}以下是故事概要：${synopsis}为它想一个原创性的名字，${randInt(2,15)}字以内，只需要名字`
-        const title = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                {
-                    role: "user",
-                    content: promptForTitle,
-                },
-            ],
-            n: 1,
-        });
+        const title = await getTitle(BASE_PROMPT, synopsis, openai);
 
         const len = randInt(min, max)
         const promptForContent = `${BASE_PROMPT}以下是故事概要：${synopsis}写一个充满悬念的小说或故事，别重复概要的内容，${len}字，不要太正经，没意思`;
@@ -60,9 +65,9 @@ export const generate = async (size) => {
         });
 
         return {
-            title: title.choices[0].message.content,
+            title,
             length: len,
-            synopsis: synopsis,
+            synopsis,
             story: content.choices[0].message.content,
         };
     } catch (e) {
