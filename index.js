@@ -1,6 +1,7 @@
 import {generate} from "./src/generate.js";
+import {putNovel} from "./src/db.js";
 
 (async function () {
-    const story = await generate()
-    console.log(story)
+    const novel = await generate()
+    await putNovel(novel)
 }())
