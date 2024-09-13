@@ -1,3 +1,5 @@
+import md5 from "md5";
+
 const writers = [
     '鲁迅', '莫泊桑', '巴尔扎克', '莎士比亚', '莫言',
     '村上春树', '海明威', '爱伦·坡', '马克·吐温', '伏尔泰',
@@ -44,4 +46,8 @@ export function pick(data, count) {
     }
 
     return output;
+}
+
+export const getNovelId = (title) => {
+    return btoa(`${Date.now()}${md5(title).toString().substring(0,10)}`);
 }
