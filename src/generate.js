@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import {genres, getBasePrompt, pick, randInt, TYPES} from "./utils.js";
+import {genres, getBasePrompt, getNovelId, pick, randInt, TYPES} from "./utils.js";
 
 const getSynopsis = async (base, genre, openai) => {
     const prompt = `${base}想一个题材为${genre.join(",")}的故事，${randInt(10, 40)}字。`
@@ -70,8 +70,9 @@ export const generate = async (size) => {
         const content = await getContent(BASE_PROMPT, synopsis, len, openai);
 
         return {
-            title,
-            synopsis,
+            id: getNovelId(title),
+            title: title.replace("《", "").replace("》", ""),
+            synopsis: synopsis.replace("《", "").replace("》", ""),
             size,
             chapters: [{
                 title: "",
