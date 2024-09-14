@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import {genres, getBasePrompt, getNovelId, pick, randInt, TYPES} from "./utils.js";
 
 const getSynopsis = async (base, genre, openai) => {
-    const prompt = `${base}想一个题材为${genre.join(",")}的故事，${randInt(10, 40)}字。`
+    const prompt = `想一个题材为${genre.join(",")}的小说概要，${randInt(20, 50)}字。`
     const synopsis = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -17,7 +17,7 @@ const getSynopsis = async (base, genre, openai) => {
 }
 
 const getTitle = async (base, synopsis, openai) => {
-    const prompt = `${base}以下是故事概要：${synopsis}为它想一个原创性的名字，${randInt(2, 15)}字以内，只需要名字`
+    const prompt = `以下是故事概要：${synopsis}为它想一个原创性的名字，${randInt(2, 15)}字以内`
     const title = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -33,10 +33,10 @@ const getTitle = async (base, synopsis, openai) => {
 }
 
 const getContent = async (base, synopsis, len, openai) => {
-    const prompt = `${base}以下是故事概要：${synopsis}写一个充满悬念的小说或故事，别重复概要的内容，${len}字，不要太正经，没意思`;
+    const prompt = `你是爱伦·坡，以下是故事概要：${synopsis}以此创作一篇小说，受众为25岁以上的成年人，第一或第三人称，有清晰的故事线，有主角，可以是反派，有对白，有张力，有细节描述，比如人物表情，动作，声音，物品，以及环境，达到引人入胜的效果，有大团圆或悲惨的结局，可能有反转，不要政治正确，不要蜻蜓点水式的讲述，不需要标题，不要markdown格式，${len}字以内`;
 
     const content = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
             {
                 role: "user",

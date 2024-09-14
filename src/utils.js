@@ -11,8 +11,7 @@ export const genres = [
     '都市', '古装', '悬疑', '言情', '玄幻',
     '科幻', '奇幻', '耽美', '家庭', '校园',
     '青春', '伦理', '惊悚', '武侠', '推理',
-    '历史', '军事', '网游', '穿越', '魔幻',
-    '政治', '亲情', '剧情',
+    '历史', '军事', '穿越', '魔幻', '政治',
 ]
 
 export const TYPES = {
@@ -23,7 +22,7 @@ export const TYPES = {
 }
 
 export function getBasePrompt() {
-    return `你是作家${pick(writers, 1)}`
+    return `你是著名小说家${pick(writers, 1)}`
 }
 
 export function randInt(min, max) {
