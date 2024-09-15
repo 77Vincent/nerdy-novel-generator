@@ -48,7 +48,7 @@ export async function putNovel(novel) {
         const paramsChapter = {
             TableName: "nerdy-novel-chapters",
             Item: {
-                id: {S: `${id}-${i + 1}`},
+                id: {N: `${i + 1}`},
                 novel_id: {S: id},
                 title: {S: title},
                 content: {S: content},

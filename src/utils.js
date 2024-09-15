@@ -47,6 +47,6 @@ export function pick(data, count) {
     return output;
 }
 
-export const getNovelId = (title) => {
-    return btoa(`${Date.now()}${md5(title).toString().substring(0,10)}`);
+export const getNovelId = (title, synopsis) => {
+    return `${md5(title).toString().substring(0,10)}-${md5(synopsis).toString().substring(0,10)}`;
 }

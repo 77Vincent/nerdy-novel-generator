@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import {genres, getBasePrompt, getNovelId, pick, randInt, TYPES} from "./utils.js";
 
 const getSynopsis = async (base, genre, openai) => {
-    const prompt = `想一个题材为${genre.join(",")}的小说概要，${randInt(20, 50)}字。`
+    const prompt = `想一个题材为${genre.join(",")}的小说概要，${randInt(20, 50)}字，避免俗套的剧情。`
     const synopsis = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -70,7 +70,7 @@ export const generate = async (size) => {
         const content = await getContent(BASE_PROMPT, synopsis, len, openai);
 
         return {
-            id: getNovelId(title),
+            id: getNovelId(title, synopsis),
             title: title.replace("《", "").replace("》", ""),
             synopsis: synopsis.replace("《", "").replace("》", ""),
             size,
