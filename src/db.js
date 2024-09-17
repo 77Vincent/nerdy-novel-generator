@@ -17,6 +17,7 @@ export async function putNovel(novel) {
     const {
         id, title, size, synopsis, length, genre,
         author_id, created_at, updated_at, chapters,
+        fileName,
     } = novel
 
     const paramsNovel = {
@@ -31,6 +32,7 @@ export async function putNovel(novel) {
             author_id: {N: `${author_id}`},
             created_at: {N: `${created_at}`},
             updated_at: {N: `${updated_at}`},
+            img_url: {S: `https://nerdy-novel.s3.ap-northeast-1.amazonaws.com/${fileName}`},
         },
     };
 

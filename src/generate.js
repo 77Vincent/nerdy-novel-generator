@@ -1,8 +1,9 @@
 import OpenAI from "openai";
+import fs from 'fs'
 import {genres, getBasePrompt, getNovelId, pick, randInt, TYPES} from "./utils.js";
 
 const getSynopsis = async (base, genre, openai) => {
-    const prompt = `想一个题材为${genre.join(",")}的小说概要，${randInt(20, 50)}字，避免俗套的剧情。`
+    const prompt = `${base}, 想一个题材为${genre.join(",")}的小说概要，${randInt(20, 50)}字，避免俗套的剧情。`
     const synopsis = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -17,7 +18,7 @@ const getSynopsis = async (base, genre, openai) => {
 }
 
 const getTitle = async (base, synopsis, openai) => {
-    const prompt = `以下是故事概要：${synopsis}为它想一个原创性的名字，${randInt(2, 15)}字以内`
+    const prompt = `${base}, 以下是故事概要：${synopsis}为它想一个原创性的名字，约${randInt(2, 15)}字`
     const title = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -33,10 +34,10 @@ const getTitle = async (base, synopsis, openai) => {
 }
 
 const getContent = async (base, synopsis, len, openai) => {
-    const prompt = `你是爱伦·坡，以下是故事概要：${synopsis}以此创作一篇小说，受众为25岁以上的成年人，第一或第三人称，有清晰的故事线，有主角，可以是反派，有对白，有张力，有细节描述，比如人物表情，动作，声音，物品，以及环境，达到引人入胜的效果，有大团圆或悲惨的结局，可能有反转，不要政治正确，不要蜻蜓点水式的讲述，不需要标题，不要markdown格式，${len}字以内`;
+    const prompt = `${base}, 以下是故事概要：${synopsis}以此创作一篇小说，受众为25岁以上的成年人，第一或第三人称，有清晰的故事线，有主角，可以是反派，有对白，有张力，有细节描述，比如人物表情，动作，声音，物品，以及环境，达到引人入胜的效果，结局可喜可悲，也可以没有结局，可能有反转，不要政治正确，不要蜻蜓点水式的讲述，不需要标题，不要markdown格式，约${len}字`;
 
     const content = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         messages: [
             {
                 role: "user",
@@ -46,6 +47,26 @@ const getContent = async (base, synopsis, len, openai) => {
         n: 1,
     });
     return content.choices[0].message.content
+}
+
+const getImage = async (id, synopsis, openai) => {
+    const response = await openai.images.generate({
+        model: "dall-e-2",
+        prompt: `${synopsis}, 以此创作一幅画，不需要文字，绘画风格`,
+        response_format: "b64_json",
+        n: 1,
+        size: "1024x1024",
+    });
+
+    const {b64_json} = response.data[0];
+    const buffer = Buffer.from(b64_json, "base64");
+    try {
+        const fileName = `novel-image-${id}.jpg`
+        fs.writeFileSync(fileName, buffer);
+        return fileName;
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 export const generate = async (size) => {
@@ -68,9 +89,11 @@ export const generate = async (size) => {
         const synopsis = await getSynopsis(BASE_PROMPT, genre, openai);
         const title = await getTitle(BASE_PROMPT, synopsis, openai);
         const content = await getContent(BASE_PROMPT, synopsis, len, openai);
+        const novelId = getNovelId(title, synopsis)
+        const fileName = await getImage(novelId, synopsis, openai);
 
         return {
-            id: getNovelId(title, synopsis),
+            id: novelId,
             title: title.replace("《", "").replace("》", ""),
             synopsis: synopsis.replace("《", "").replace("》", ""),
             size,
@@ -84,6 +107,7 @@ export const generate = async (size) => {
             author_id: randInt(1, 500),
             created_at: Date.now(),
             updated_at: Date.now(),
+            fileName,
         };
     } catch (e) {
         throw new Error(`failed to generate story: ${e}`)

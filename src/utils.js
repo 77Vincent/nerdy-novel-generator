@@ -15,14 +15,14 @@ export const genres = [
 ]
 
 export const TYPES = {
-    micro: [20, 500],
+    micro: [20, 100],
     short: [500, 2000],
     medium: [2000, 8000],
     long: [8000, 20000],
 }
 
 export function getBasePrompt() {
-    return `你是著名小说家${pick(writers, 1)}`
+    return `你是著名小说家`
 }
 
 export function randInt(min, max) {
