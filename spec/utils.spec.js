@@ -2,8 +2,8 @@ import {getNovelId, pick} from "../src/utils.js";
 
 describe("getNovelId", function() {
     it("ok", function() {
-        expect(getNovelId("foo").length).toBe(32);
-        expect(getNovelId("呆书").length).toBe(32);
+        expect(getNovelId("foo", "bar").length).toBe(21);
+        expect(getNovelId("呆书", "网").length).toBe(21);
     });
 });
 
