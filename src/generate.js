@@ -51,8 +51,8 @@ const getContent = async (base, synopsis, len, openai) => {
 
 const getImage = async (id, synopsis, openai) => {
     const response = await openai.images.generate({
-        model: "dall-e-2",
-        prompt: `${synopsis}, 以此创作一幅画，不需要文字，绘画风格`,
+        model: "dall-e-3",
+        prompt: `${synopsis}, draw a creative picture with some comic style, no need for text`,
         response_format: "b64_json",
         n: 1,
         size: "1024x1024",
@@ -83,12 +83,12 @@ export const generate = async (size) => {
     }
     const min = TYPES[size][0]
     const max = TYPES[size][1]
-    const len = randInt(min, max)
+    const limit = randInt(min, max)
 
     try {
         const synopsis = await getSynopsis(BASE_PROMPT, genre, openai);
         const title = await getTitle(BASE_PROMPT, synopsis, openai);
-        const content = await getContent(BASE_PROMPT, synopsis, len, openai);
+        const content = await getContent(BASE_PROMPT, synopsis, limit, openai);
         const novelId = getNovelId(title, synopsis)
         const fileName = await getImage(novelId, synopsis, openai);
 
@@ -100,9 +100,9 @@ export const generate = async (size) => {
             chapters: [{
                 title: "",
                 content,
-                length: len,
+                length: content.length,
             }],
-            length: len,
+            length: content.length,
             genre,
             author_id: randInt(1, 500),
             created_at: Date.now(),
