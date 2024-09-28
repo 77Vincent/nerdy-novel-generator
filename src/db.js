@@ -1,18 +1,8 @@
-import {DynamoDBClient, PutItemCommand} from "@aws-sdk/client-dynamodb";
+import {PutItemCommand} from "@aws-sdk/client-dynamodb";
+import {getDb} from "./utils.js";
 
 export async function putNovel(novel) {
-    const accessKeyId = process.env.AWS_ACCESS_KEY_ID
-    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
-
-    const client = new DynamoDBClient({
-        region: "ap-northeast-1",
-        // region: 'local', // Can be any valid AWS region
-        // endpoint: 'http://localhost:8000', // Connect to local DynamoDB
-        credentials: {
-            accessKeyId, // These values can be anything when using local DynamoDB
-            secretAccessKey,
-        },
-    });
+    const client = await getDb()
 
     const {
         id, title, size, synopsis, length, genre,

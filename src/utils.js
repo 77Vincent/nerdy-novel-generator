@@ -1,4 +1,5 @@
 import md5 from "md5";
+import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 
 const writers = [
     '鲁迅', '莫泊桑', '巴尔扎克', '莎士比亚', '莫言',
@@ -48,5 +49,20 @@ export function pick(data, count) {
 }
 
 export const getNovelId = (title, synopsis) => {
-    return `${md5(title).toString().substring(0,10)}-${md5(synopsis).toString().substring(0,10)}`;
+    return `${md5(title).toString().substring(0, 10)}-${md5(synopsis).toString().substring(0, 10)}`;
+}
+
+export const getDb = async () => {
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY
+
+    return new DynamoDBClient({
+        region: "ap-northeast-1",
+        // region: 'local', // Can be any valid AWS region
+        // endpoint: 'http://localhost:8000', // Connect to local DynamoDB
+        credentials: {
+            accessKeyId, // These values can be anything when using local DynamoDB
+            secretAccessKey,
+        },
+    });
 }
