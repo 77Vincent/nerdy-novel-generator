@@ -69,6 +69,26 @@ const getImage = async (id, synopsis, openai) => {
     }
 }
 
+export const generateAuthor = async () => {
+    const apiKey = process.env.OPEN_AI_API_KEY;
+    const openai = new OpenAI({
+        apiKey,
+    });
+
+    const prompt = `想一个名字，用于社交平台，可真实可虚构，不要局限于刻板印象，1到15个字，中英文都可以，只需要一个名字，只有名字本身，无需其他信息`
+    const synopsis = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+            {
+                role: "user",
+                content: prompt,
+            },
+        ],
+        n: 1,
+    });
+    return synopsis.choices[0].message.content
+}
+
 export const generate = async (size) => {
     const BASE_PROMPT = getBasePrompt()
     const genre = pick(genres, randInt(1, 3))
@@ -104,7 +124,7 @@ export const generate = async (size) => {
             }],
             length: content.length,
             genre,
-            author_id: randInt(1, 500),
+            author_id: randInt(1, 100),
             created_at: Date.now(),
             updated_at: Date.now(),
             fileName,

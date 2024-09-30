@@ -2,7 +2,7 @@ import {PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {getDb} from "./utils.js";
 
 export async function putNovel(novel) {
-    const client = await getDb()
+    const db = await getDb()
 
     const {
         id, title, size, synopsis, length, genre,
@@ -27,7 +27,7 @@ export async function putNovel(novel) {
     };
 
     try {
-        await client.send(new PutItemCommand(paramsNovel));
+        await db.send(new PutItemCommand(paramsNovel));
     } catch (error) {
         console.error(error);
     } finally {
@@ -49,7 +49,7 @@ export async function putNovel(novel) {
         }
 
         try {
-            await client.send(new PutItemCommand(paramsChapter));
+            await db.send(new PutItemCommand(paramsChapter));
         } catch (error) {
             console.error(error);
             break
