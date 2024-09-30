@@ -1,56 +1,56 @@
 import {getDb} from "./utils.js";
 import {PutItemCommand, ScanCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
 import {generateAuthor} from "./generate.js";
-import md5 from "md5";
 
 const authorTableName = "nerdy-novel-author"
 
-export async function uploadAuthor(authorId) {
+export async function uploadAuthor(authorNo) {
     const db = await getDb()
 
-    const params = {
-        TableName: authorTableName,
-        FilterExpression: "#a = :v",
-        ExpressionAttributeNames: {
-            "#a": "id",
-        },
-        ExpressionAttributeValues: {
-            ":v": {
-                S: authorId,
-            },
-        },
-    }
-
     try {
-        const {$metadata: {httpStatusCode}, Count} = await db.send(new ScanCommand(params))
+        // get the author
+        const {$metadata: {httpStatusCode}, Count, Items} = await db.send(new ScanCommand({
+            TableName: authorTableName,
+            FilterExpression: "#a = :v",
+            ExpressionAttributeNames: {
+                "#a": "no",
+            },
+            ExpressionAttributeValues: {
+                ":v": {
+                    N: authorNo,
+                },
+            },
+        }))
 
         // TODO: handle the 4XX/5XX error case
         if (httpStatusCode !== 200) {
             return httpStatusCode
         }
 
+        // create a new user if not exist
         if (!Count) {
             const authorName = await generateAuthor()
+            const now = new Date().getTime()
             const params = {
                 TableName: "nerdy-novel-author",
                 Item: {
-                    id: {S: md5(authorName)},
+                    id: {S: `${authorName}#${now}#${authorNo}`},
+                    no: {N: `${authorNo}`},
                     name: {S: authorName},
-                    posts: {N: "1"}
+                    posts: {N: "1"},
+                    created_at: {N: `${now}`},
                 },
             };
             await db.send(new PutItemCommand(params));
             return
         }
-    } catch (e) {
-        throw Error(`failed to fetch the author ${authorId} info: ${e}`);
-    }
 
-    try {
+        // otherwise update the existing
+        const {id: {S: id}} = Items[0] // the fetched author id
         const params = {
             TableName: authorTableName,
             Key: {
-                id: {S: authorId,},
+                id: {S: id,},
             },
             UpdateExpression: "add #a :v",
             ExpressionAttributeNames: {
@@ -62,6 +62,6 @@ export async function uploadAuthor(authorId) {
         };
         await db.send(new UpdateItemCommand(params))
     } catch (e) {
-        throw Error(`failed to update the author ${authorId} info: ${e}`);
+        throw Error(`failed to create or update the author ${authorNo} info: ${e}`);
     }
 }
